@@ -3,11 +3,10 @@ require 'json'
 module Simple 
   module Mu
     module Application
-      module Events
+      module EventAdapters
+        class SnsRecord
 
-        class SnsRecordAdapter
-
-          attr_reader :record
+          attr_reader :record, :context
 
           def initialize(record)
             @record = record
@@ -18,11 +17,11 @@ module Simple
           end
 
           def payload
-            message['payload'].deep_symbolize_keys!
+            message.deep_symbolize_keys!
           end
 
           def message 
-            JSON.parse(record['body'])
+            JSON.parse(record['Sns']['Message'])
           end
 
         end

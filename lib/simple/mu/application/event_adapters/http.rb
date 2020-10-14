@@ -4,8 +4,8 @@ require 'simple/mu/application/support/array'
 module Simple
   module Mu
     module Application
-      module Events
-        class HttpEventAdapter
+      module EventAdapters
+        class Http
 
           def initialize(event)
             @event = event

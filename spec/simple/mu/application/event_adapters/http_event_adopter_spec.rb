@@ -1,10 +1,9 @@
-require 'spec_helper'
-require 'simple/mu/application/events/http'
+require 'simple/mu/application/event_adapters/http'
 require 'support/events/http'
 
-RSpec.describe Simple::Mu::Application::Events::HttpEventAdapter do
+RSpec.describe Simple::Mu::Application::EventAdapters::Http do
 
-  let(:post_data){ {text: 'hello world', payload: {foo: 'foo', bar: 'bar' } } }
+  let(:post_data){ { text: 'hello world', payload: { foo: 'foo', bar: 'bar' } } }
   let(:event){ MockHttpEvent.event(post_data) }
   let(:path){ event['requestContext']['path'] }
   let(:method){ event['requestContext']['httpMethod'] }

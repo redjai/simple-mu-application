@@ -9,3 +9,9 @@
 
 # rspec failure tracking
 .rspec_status
+.rspec
+.travis.yml
+
+.DS_Store
+.ruby-version
+*.swp

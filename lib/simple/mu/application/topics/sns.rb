@@ -1,12 +1,12 @@
 require 'simple/mu/application/templates/validator'
-require_relative 'message'
+require_relative 'event'
 
 module Simple
   module Mu
     module Application
       module Topics
         class Sns
-        include Simple::Mu::Application::Topics::Message
+        include Simple::Mu::Application::Topics::Event
 
           def initialize(topic_name)
             @topic_name = topic_name
@@ -34,7 +34,7 @@ module Simple
                                                          event_name: event_name,
                                                               version: version,
                                                               payload: payload).validate!
-            topic.publish(message: message_json(event_name: event_name, version: version, payload: payload))
+            topic.publish(message: event_json(event_name: event_name, version: version, payload: payload))
           end
 
           private
