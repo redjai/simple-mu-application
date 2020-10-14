@@ -3,9 +3,9 @@ require 'json'
 module Simple 
   module Mu
     module Application
-      module Events
+      module EventAdapters
 
-        class SqsRecordAdapter
+        class SqsRecord
 
           attr_reader :record
 
@@ -13,15 +13,11 @@ module Simple
             @record = record
           end
 
-          def event_name
-            message['event_name']
-          end
-
           def payload
-            message['payload'].deep_symbolize_keys!
+            body.deep_symbolize_keys!
           end
 
-          def message 
+          def body 
             JSON.parse(record['body'])
           end
 
