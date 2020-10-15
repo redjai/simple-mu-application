@@ -1,6 +1,5 @@
 module MockS3Event
-    def self.event(args={})
-      args[:bucket] = "red-queen-importer-api-data-staging" unless args[:bucket]
+    def self.event(bucket, key)
       {"Records"=>
         [
           {"eventVersion"=>"2.1", 
@@ -15,14 +14,14 @@ module MockS3Event
               "s3SchemaVersion"=>"1.0", 
               "configurationId"=>"importers-kanbanize-api-staging-extract-users-99eb10de078cd901fa0646c60032172a", 
               "bucket"=>{
-                "name"=> args[:bucket], 
+                "name"=> bucket, 
                 "ownerIdentity"=>{
                   "principalId"=>"A35OZF3796S4YB"
                 }, 
                 "arn"=>"arn:aws:s3:::red-queen-importer-api-data-staging"
               }, 
               "object"=>{
-                "key"=> args[:key], 
+                "key"=> key, 
                 "size"=>6132, 
                 "eTag"=>"bfbc387dc247e5e626cdaa9bdbe06f78", 
                 "sequencer"=>"005F175DD7B4FD15F4"
