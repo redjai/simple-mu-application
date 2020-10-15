@@ -10,7 +10,7 @@ RSpec.describe Simple::Mu::Application::EventAdapters::SqsRecord do
   subject{ described_class.new(record) }
 
   it 'should return the payload with keys as symbols' do
-    expect(subject.payload).to eq post_data
+    expect(subject.event).to eq post_data
   end
 
 end

@@ -12,13 +12,11 @@ module Simple
             @record = record
           end
 
-          def event_name
-            message['event_name']
-          end
-
-          def payload
+          def event 
             message.deep_symbolize_keys!
           end
+
+          private
 
           def message 
             JSON.parse(record['Sns']['Message'])

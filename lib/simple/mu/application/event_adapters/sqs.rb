@@ -13,7 +13,7 @@ module Simple
             @record = record
           end
 
-          def payload
+          def event 
             body.deep_symbolize_keys!
           end
 
