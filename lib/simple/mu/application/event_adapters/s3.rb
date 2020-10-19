@@ -10,11 +10,7 @@ module Simple
             @record = record
           end
 
-          def event_name
-            metadata['event_name']
-          end
-
-          def payload
+          def event 
             { key: key, bucket: bucket }
           end
 
@@ -22,8 +18,16 @@ module Simple
             record['s3']['bucket']['name']
           end
 
+          def delete?
+            false
+          end
+
           def key
             record['s3']['object']['key']
+          end
+
+          def to_s 
+            "s3::#{record['responseElements']['x-amz-request-id']}"
           end
         end
       end

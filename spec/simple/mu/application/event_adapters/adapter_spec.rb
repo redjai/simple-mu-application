@@ -45,7 +45,7 @@ RSpec.describe Simple::Mu::Application::EventAdapters::Adapter do
     subject{ described_class.events(aws_event: aws_event, context: context).first }
     
     it 'should populate the event with the payload' do
-      expect(subject.payload).to eq payload
+      expect(subject.event).to eq payload
     end
   end
 

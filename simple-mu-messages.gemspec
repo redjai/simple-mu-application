@@ -17,6 +17,8 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "rspec", "~> 3.0"
 
   spec.add_runtime_dependency "aws-sdk-sns"
+  spec.add_runtime_dependency "aws-sdk-sqs"
+  spec.add_runtime_dependency "honeybadger"
 
   #spec.metadata["allowed_push_host"] = "TODO: Set to 'http://mygemserver.com'"
 

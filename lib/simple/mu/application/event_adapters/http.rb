@@ -19,7 +19,7 @@ module Simple
             @event['requestContext']['httpMethod']
           end
 
-          def payload
+          def event 
             JSON.parse(body).deep_symbolize_keys! 
           end
 
@@ -27,6 +27,13 @@ module Simple
             @event['body']
           end
 
+          def delete?
+            false
+          end
+
+          def to_s 
+            "http::#{@event['requestContext']['requestId']}"
+          end
         end
       end
     end

@@ -16,6 +16,14 @@ module Simple
             message.deep_symbolize_keys!
           end
 
+          def delete?
+            false
+          end
+
+          def to_s 
+            "sns::#{record['Sns']['MessageId']}"
+          end
+
           private
 
           def message 
