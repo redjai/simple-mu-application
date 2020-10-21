@@ -1,4 +1,5 @@
 require 'json'
+require 'simple/mu/application/support/hash'
 
 module Simple 
   module Mu

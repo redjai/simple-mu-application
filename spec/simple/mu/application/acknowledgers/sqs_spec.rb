@@ -4,11 +4,15 @@ require 'support/events/sqs'
 
 RSpec.describe Simple::Mu::Application::Acknowledgers::Sqs do
 
-  let(:sqs_event_1){ Simple::Mu::Application::EventAdapters::SqsRecord.new(MockSqsEvent.event({})['Records'].first) }
-  let(:sqs_event_2){ Simple::Mu::Application::EventAdapters::SqsRecord.new(MockSqsEvent.event({})['Records'].first) }
-  let(:processed){ [sqs_event_1, sqs_event_2] }
-  let(:ack_1){ { id: sqs_event_1.message_id, receipt_handle: sqs_event_1.receipt_handle} } 
-  let(:ack_2){ { id: sqs_event_2.message_id, receipt_handle: sqs_event_2.receipt_handle} } 
+  let(:sqs_event){ MockSqsEvent.event({ foo: 'foo'},{bar: 'bar'}) }
+  let(:records){ sqs_event['Records'] }
+  let(:record1){ Simple::Mu::Application::EventAdapters::SqsRecord.new(records.first) }
+  let(:record2){ Simple::Mu::Application::EventAdapters::SqsRecord.new(records.last) }
+
+ 
+  let(:processed){ [record1, record2] }
+  let(:ack_1){ { id: record1.message_id, receipt_handle: record1.receipt_handle} } 
+  let(:ack_2){ { id: record2.message_id, receipt_handle: record2.receipt_handle} } 
 
   around do |example|
     ClimateControl.modify REGION: 'eu-east-1' do
