@@ -1,10 +1,10 @@
 require 'simple/mu/application/event_adapters/sqs'
-require 'support/events/sqs'
+require 'support/events/event'
 
 RSpec.describe Simple::Mu::Application::EventAdapters::SqsRecord do
 
   let(:post_data){ { text: 'hello world', payload: { foo: 'foo', bar: 'bar' } } }
-  let(:sqs_event){ MockSqsEvent.event(post_data) }
+  let(:sqs_event){ MockEvent.event(sqs: post_data) }
   let(:record){ sqs_event['Records'].first }
   let(:queue_name){ 'my-queue' } #taken from event ARN
   let(:to_s){ "sqs::#{record['messageId']}" }

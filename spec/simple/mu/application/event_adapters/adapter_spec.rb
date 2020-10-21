@@ -3,9 +3,7 @@ require 'simple/mu/application/event_adapters/http'
 require 'simple/mu/application/event_adapters/s3'
 require 'simple/mu/application/event_adapters/sqs'
 require 'support/events/http'
-require 'support/events/s3'
-require 'support/events/sns'
-require 'support/events/sqs'
+require 'support/events/event'
 
 RSpec.describe Simple::Mu::Application::EventAdapters::Adapter do
 
@@ -15,10 +13,14 @@ RSpec.describe Simple::Mu::Application::EventAdapters::Adapter do
 
   context 'sns event' do
 
-    let(:aws_event){ MockSnsEvent.event(trigger_event) }
+    let(:aws_event){ MockEvent.event(sns: trigger_event) }
    
     subject{ described_class.events(aws_event: aws_event, context: context).first }
-    
+   
+    it 'should be an sns adapter' do
+      expect(subject).to be_a Simple::Mu::Application::EventAdapters::SnsRecord
+    end
+
     it 'should populate the event with the payload' do
       expect(subject.event).to eq trigger_event
     end
@@ -26,10 +28,14 @@ RSpec.describe Simple::Mu::Application::EventAdapters::Adapter do
   
   context 'sqs event' do
 
-    let(:aws_event){ MockSqsEvent.event(trigger_event) }
+    let(:aws_event){ MockEvent.event(sqs: trigger_event) }
    
     subject{ described_class.events(aws_event: aws_event, context: context).first }
     
+    it 'should be an sqs adapter' do
+      expect(subject).to be_a Simple::Mu::Application::EventAdapters::SqsRecord
+    end
+
     it 'should populate the event with the payload' do
       expect(subject.event).to eq trigger_event
     end
@@ -37,13 +43,17 @@ RSpec.describe Simple::Mu::Application::EventAdapters::Adapter do
 
   context 's3 event' do
 
-    let(:aws_event){ MockS3Event.event(bucket, key) }
+    let(:aws_event){ MockEvent.event(s3: payload) }
     let(:payload){ { key: key, bucket: bucket } } # this isn't a 'topic' from sns or sqs
     let(:key){ '/some/key/to.json' }
     let(:bucket){ 'some-bucket' }
 
     subject{ described_class.events(aws_event: aws_event, context: context).first }
     
+    it 'should be an s3 record adapter' do
+      expect(subject).to be_a Simple::Mu::Application::EventAdapters::S3Record
+    end
+
     it 'should populate the event with the payload' do
       expect(subject.event).to eq payload
     end
@@ -57,8 +67,12 @@ RSpec.describe Simple::Mu::Application::EventAdapters::Adapter do
    
     subject{ described_class.events(aws_event: aws_event, context: context).first }
     
+    it 'should be an http adapter' do
+      expect(subject).to be_a Simple::Mu::Application::EventAdapters::Http
+    end
+
     it 'should populate the event with the payload' do
-      expect(subject).to eq message 
+      expect(subject.event).to eq message 
     end
   end
 end

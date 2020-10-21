@@ -1,10 +1,10 @@
-require 'support/events/s3'
+require 'support/events/event'
 require 'simple/mu/application/event_adapters/s3'
 
 RSpec.describe Simple::Mu::Application::EventAdapters::S3Record do
   let(:key){ 'some/key.json' }
   let(:bucket){ 'some_bucket' }
-  let(:event){ MockS3Event.event(bucket, key) }
+  let(:event){ MockEvent.event(s3: payload) }
   let(:record){ event['Records'].first }
   let(:payload){ { key: key, bucket: bucket } }
   let(:to_s){ "s3::#{record['responseElements']['x-amz-request-id']}" }

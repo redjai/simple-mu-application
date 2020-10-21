@@ -1,10 +1,10 @@
 require 'simple/mu/application/acknowledgers/sqs'
 require 'simple/mu/application/event_adapters/sqs'
-require 'support/events/sqs'
+require 'support/events/event'
 
 RSpec.describe Simple::Mu::Application::Acknowledgers::Sqs do
 
-  let(:sqs_event){ MockSqsEvent.event({ foo: 'foo'},{bar: 'bar'}) }
+  let(:sqs_event){ MockEvent.event(sqs: { foo: 'foo'}, sqs: {bar: 'bar'}) }
   let(:records){ sqs_event['Records'] }
   let(:record1){ Simple::Mu::Application::EventAdapters::SqsRecord.new(records.first) }
   let(:record2){ Simple::Mu::Application::EventAdapters::SqsRecord.new(records.last) }

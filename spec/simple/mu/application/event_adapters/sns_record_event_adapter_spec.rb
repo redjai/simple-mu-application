@@ -1,10 +1,10 @@
 require 'simple/mu/application/event_adapters/sns'
-require 'support/events/sns'
+require 'support/events/event'
 
 RSpec.describe Simple::Mu::Application::EventAdapters::SnsRecord do
 
   let(:post_data){ { text: 'hello world', payload: { foo: 'foo', bar: 'bar' } } }
-  let(:sns_event){ MockSnsEvent.event(post_data) }
+  let(:sns_event){ MockEvent.event(sns: post_data) }
   let(:record){ sns_event['Records'].first }
   let(:to_s){ "sns::#{record['Sns']['MessageId']}" }
 
