@@ -17,7 +17,7 @@ module Simple
             message.deep_symbolize_keys!
           end
 
-          def delete?
+          def ackable?
             false
           end
 

@@ -29,7 +29,7 @@ module Simple
             @event['body']
           end
 
-          def delete?
+          def ackable?
             false
           end
 

@@ -21,7 +21,7 @@ RSpec.describe Simple::Mu::Application::Framework do
       let(:aws_event){ MockHttpEvent.event(payload1) }
 
       it 'should yield the single http adapter' do
-        expect{ |b| subject.handle(event: aws_event, context: context, &b) }.to yield_with_args(Simple::Mu::Application::EventAdapters::Http)
+        expect{ |b| subject.handle(&b) }.to yield_with_args(Simple::Mu::Application::EventAdapters::Http)
       end
 
     end
@@ -29,7 +29,7 @@ RSpec.describe Simple::Mu::Application::Framework do
     context 'one event with s3, sqs, sns records' do
     
       it 'should yield the record adapters' do
-        expect{ |b| subject.handle(event: aws_event, context: context, &b) }.to yield_successive_args(Simple::Mu::Application::EventAdapters::SqsRecord,
+        expect{ |b| subject.handle(&b) }.to yield_successive_args(Simple::Mu::Application::EventAdapters::SqsRecord,
                                                                                                       Simple::Mu::Application::EventAdapters::SqsRecord,
                                                                                                       Simple::Mu::Application::EventAdapters::SnsRecord,
                                                                                                       Simple::Mu::Application::EventAdapters::S3Record)
@@ -44,50 +44,36 @@ RSpec.describe Simple::Mu::Application::Framework do
   context 'errors' do
 
     context 'notifier' do
-      context 'honeybadger api key' do
-        context 'present' do
-
-          around(:each) do |example|
-            ClimateControl.modify HONEYBADGER_API_KEY: 'abc' do
-              example.run
+      it 'should notify the notifier of any errors and raise the error on each of the 4 reecords in the aws_event' do
+        expect(subject.notifier).to receive(:notify).with(StandardError).exactly(4).times
+          expect {
+            subject.handle do
+              raise "boom"
             end
-          end
-        
-          it 'should notify honeybadger 4 times and raise an error' do
-            expect(Honeybadger).to receive(:notify).exactly(4).times
-            expect{
-              subject.handle(event: aws_event, context: context) do |event|
-                raise "boom"
-              end
-            }.to raise_error
-          end
-
-        end
-
-        context 'not present' do
-
-          it 'should not notify honeybadger' do
-            expect(Honeybadger).to receive(:notify).never
-          end
-    
-        end
+          }.to raise_error(Simple::Mu::Application::FrameworkError)
       end
     end
 
-    context 'ack messages' do
+    context 'acknowledger' do
 
-      context 'no messages error' do
-
-         
-
+      it 'should acknowledge the sqs messages that do not error and return an error' do
+        expect(subject.acknowledger).to receive(:acknowledge).with(processed: [Simple::Mu::Application::EventAdapters::SqsRecord]).once
+        expect {
+           subject.handle do |adapter|
+             raise if adapter.event == payload1
+           end
+        }.to raise_error(Simple::Mu::Application::FrameworkError)
       end
-
-      context 'some messages error' do
-
-      end
-
     end
-    
+  end
+
+  context 'no errors' do
+
+    it 'should NOT use the acknowledger to acknowledge processed messages - let AWS do that naturally' do
+      expect(subject.acknowledger).to receive(:acknowledge).never
+      subject.handle {|adapter|} #empty block
+    end
+
   end
 
 end

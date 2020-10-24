@@ -18,7 +18,7 @@ module Simple
             record['s3']['bucket']['name']
           end
 
-          def delete?
+          def ackable?
             false
           end
 

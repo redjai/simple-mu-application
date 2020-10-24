@@ -37,8 +37,8 @@ module Simple
             record['receiptHandle']
           end
 
-          def delete?
-            ENV['DELETE_EVENT'] == 'TRUE'
+          def ackable?
+            true 
           end
 
         end

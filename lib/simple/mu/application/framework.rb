@@ -7,6 +7,9 @@ require 'simple/mu/application/notifiers/honeybadger'
 module Simple
   module Mu
     module Application
+
+      class FrameworkError < StandardError; end
+
       class Framework
 
         attr_accessor :event, :context
@@ -16,24 +19,20 @@ module Simple
           @context = context
         end
 
-        def handle(event:, context:)
-          begin
-            adapters.each do |adapter| 
-              begin
-                yield adapter
-                adapter.processed = true
-              rescue StandardError => standard_error
-                adapter.errored = true
-                notify_honeybadger(standard_error) 
-              end 
-            end
-          rescue StandardError => e
-            notifier.notify(e)
+        def handle
+          adapters.each do |adapter| 
+            begin
+              yield adapter
+              adapter.processed = true
+            rescue StandardError => standard_error
+              adapter.errored = true
+              notifier.notify(standard_error)
+            end 
           end
 
           if errors?
             acknowledge_processed_adapters!
-            raise error_messages.join(",") #ids of events that failed, if we don't return an erro then aws will assume all messages have been processed and delete them all.
+            raise Simple::Mu::Application::FrameworkError.new error_messages.join(",") #ids of events that failed, if we don't return an erro then aws will assume all messages have been processed and delete them all.
           end
 
           #if there are no errors let AWS delete the SQS messages naturally
@@ -49,12 +48,12 @@ module Simple
         end
 
         def acknowledge_processed_adapters!
-          acknowledger.acknowledge(processed: ackable_adapters.select{|adapter| adpater.processed })
+          acknowledger.acknowledge(processed: ackable_adapters)
         end
 
         def ackable_adapters
           adapters.select do |adapter|
-            adapter.is_a?(Simple::Mu::Application::EventAdapters::SqsRecord)
+            adapter.ackable? && adapter.processed
           end
         end
 
