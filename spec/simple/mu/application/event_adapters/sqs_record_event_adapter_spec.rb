@@ -6,7 +6,7 @@ RSpec.describe Simple::Mu::Application::EventAdapters::SqsRecord do
   let(:post_data){ { text: 'hello world', payload: { foo: 'foo', bar: 'bar' } } }
   let(:sqs_event){ MockEvent.event(sqs: post_data) }
   let(:record){ sqs_event['Records'].first }
-  let(:queue_name){ 'my-queue' } #taken from event ARN
+  let(:queue_name){ 'my-queue-0' } #taken from event ARN
   let(:to_s){ "sqs::#{record['messageId']}" }
 
   subject{ described_class.new(record) }

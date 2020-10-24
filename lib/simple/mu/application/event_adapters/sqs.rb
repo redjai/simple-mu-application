@@ -7,7 +7,7 @@ module Simple
 
         class SqsRecord
 
-          attr_reader :record
+          attr_accessor :record, :context, :processed, :errored
 
           def initialize(record)
             @record = record

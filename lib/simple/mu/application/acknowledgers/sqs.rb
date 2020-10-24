@@ -18,8 +18,14 @@ module Simple
             queues[queue_name] ||= resource.get_queue_by_name(queue_name: queue_name)
           end
 
-          def acknowledge(queue_name:, processed:)
-            queue(queue_name).delete_messages(entries: entries(processed: processed)) 
+          def acknowledge(processed:)
+            by_queue(processed: processed).each do |queue_name, adapters|
+              queue(queue_name).delete_messages(entries: entries(processed: adapters)) 
+            end
+          end
+
+          def by_queue(processed:)
+            processed.group_by { |adapter| adapter.queue_name }
           end
 
           def entries(processed:)

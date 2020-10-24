@@ -2,13 +2,23 @@ require 'json'
 module MockEvent
 
   def self.event(**payloads)
-    records = payloads.collect do |key, value|
-      send("#{key}_record".to_sym, value)
-    end
+    records = []
+    index = 0
+    payloads.collect do |key, value|
+      if value.is_a?(Hash)
+        records << send("#{key}_record".to_sym, value, index)
+        index += 1
+      elsif value.is_a?(Array)
+        value.collect do |v|
+          records << send("#{key}_record".to_sym, v, index)
+          index += 1
+        end
+      end
+    end.flatten
     { "Records"=> records }
   end
 
-  def self.s3_record(payload)
+  def self.s3_record(payload, i)
     {"eventVersion"=>"2.1", 
      "eventSource"=>"aws:s3", 
      "awsRegion"=>"eu-west-1", 
@@ -37,7 +47,7 @@ module MockEvent
     }
   end
   
-  def self.sqs_record(payload)
+  def self.sqs_record(payload, index)
     {"messageId"=>"059f36b4-87a3-44ab-83d2-661975830a7d", 
      "receiptHandle"=>"AQEBwJnKyrHigUMZj6rYigCgxlaS3SLy0a...", 
      "body"=>payload.to_json, 
@@ -50,12 +60,12 @@ module MockEvent
      "messageAttributes"=>{}, 
      "md5OfBody"=>"e4e68fb7bd0e697a0ae8f1bb342846b3", 
      "eventSource"=>"aws:sqs", 
-     "eventSourceARN"=>"arn:aws:sqs:us-east-2:123456789012:my-queue", 
+     "eventSourceARN"=>"arn:aws:sqs:us-east-2:123456789012:my-queue-#{index}", 
      "awsRegion"=>"us-east-2"
     }
   end
   
-  def self.sns_record(payload)
+  def self.sns_record(payload, i)
      {
        "EventSource"=>"aws:sns",
        "EventVersion"=>"1.0",

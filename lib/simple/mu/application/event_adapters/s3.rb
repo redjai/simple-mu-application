@@ -4,7 +4,7 @@ module Simple
       module EventAdapters
         class S3Record
 
-          attr_accessor :record
+          attr_accessor :record, :processed, :errored
 
           def initialize(record)
             @record = record

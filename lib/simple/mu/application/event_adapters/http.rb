@@ -7,6 +7,8 @@ module Simple
       module EventAdapters
         class Http
 
+          attr_accessor :processed, :errored
+
           def initialize(event)
             @event = event
           end

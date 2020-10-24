@@ -1,104 +1,88 @@
 require 'aws-sdk-sqs'
 require 'honeybadger'
+require 'simple/mu/application/acknowledgers/sqs'
+require 'simple/mu/application/event_adapters/adapter'
+require 'simple/mu/application/notifiers/honeybadger'
 
 module Simple
   module Mu
     module Application
-      module Framework
+      class Framework
 
-        @@errored = []
-        @@processed = []
+        attr_accessor :event, :context
 
-        def self.handle(event:, context:)
-          setup!
+        def initialize(event:, context:)
+          @event = event
+          @context = context
+        end
+
+        def handle(event:, context:)
           begin
-            Simple::Mu::Application::EventAdapters::Adapter.events(aws_event: event, context: context).each do |adapter| 
+            adapters.each do |adapter| 
               begin
-                yield adapter.event
-                event_processed(adapter) 
+                yield adapter
+                adapter.processed = true
               rescue StandardError => standard_error
-                event_errored(adapter, standard_error)
+                adapter.errored = true
                 notify_honeybadger(standard_error) 
               end 
             end
           rescue StandardError => e
-            notify_honeybadger(e)
+            notifier.notify(e)
           end
 
           if errors?
-            delete_processed_messages!
-            raise "events #{error_ids.join(",")}" #ids of events that failed, if we don't return an erro then aws will assume all messages have been processed and delete them all.
+            acknowledge_processed_adapters!
+            raise error_messages.join(",") #ids of events that failed, if we don't return an erro then aws will assume all messages have been processed and delete them all.
           end
 
           #if there are no errors let AWS delete the SQS messages naturally
 
         end
 
-        def self.sqs
-
+        def adapters
+          @adapters ||= Simple::Mu::Application::EventAdapters::Adapter.events(aws_event: event, context: context)
+        end
+        
+        def errors?
+          adapters.find{ |adapter| adapter.errored }
         end
 
-        def self.errors?
-          @@errored.any?
+        def acknowledge_processed_adapters!
+          acknowledger.acknowledge(processed: ackable_adapters.select{|adapter| adpater.processed })
         end
 
-        def self.setup!
-          @@processed.clear
-          @@errored.clear
-        end
-
-        def self.delete_processed_messages!
-          @@errored.each do |errored|
-            
+        def ackable_adapters
+          adapters.select do |adapter|
+            adapter.is_a?(Simple::Mu::Application::EventAdapters::SqsRecord)
           end
         end
 
-        def self.processed_sqs_adapters
-          @@processed.select do |adapter|
-            adapter.is_a?(Simple::Mu::Application::EventAdapters::Sqs)
+        def acknowledger
+          @acknowledger ||= Simple::Mu::Application::Acknowledgers::Sqs.new
+        end
+
+        def errored
+          adapters.select do |adapter|
+            adapter.errored
           end
         end
 
-        def self.error_ids
-          @@errored.collect do |err|
-            err.first.to_s
-          end
+        def error_messages
+          errored(&:to_s)
         end
 
-        def self.errored_event(adapter, error)
-          @@errored << [adapter, error]
+        def notifier
+          @notifier ||= Simple::Mu::Application::Notifiers::Honeybadger.new
         end
 
-        def self.processed_event(adapter)
-          @@processed = []
-        end
-
-        def self.notify_honeybadger(standard_error)
-          return if ENV['HONEYBADGER_API_KEY'].nil?
-
-          opts = {sync: true} #sync true is important as we have no background worker thread
-
-          if e.respond_to?(:response)
-             opts[:context] = { response:  err.response }
-          end
-
-          Honeybadger.notify(e, opts)
-        end
-
-        def self.broadcast(topic_name:, event_name:, version:, payload:)
+        def broadcast(topic_name:, event_name:, version:, payload:)
           broadcaster.broadcast(topic_name, event_name, version, payload)
         end
 
-        def self.broadcaster
+        def broadcaster
           @broadcaster ||= Simple::Mu::Broadcasters::Sns.new
         end
-
-        def self.acknowledge(message_id
-
-        def self.acknowledger
-
-        end
-
       end
     end
   end

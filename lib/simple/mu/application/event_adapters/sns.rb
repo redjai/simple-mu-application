@@ -7,7 +7,7 @@ module Simple
       module EventAdapters
         class SnsRecord
 
-          attr_reader :record, :context
+          attr_accessor :record, :processed, :errored
 
           def initialize(record)
             @record = record
