@@ -15,7 +15,7 @@ RSpec.describe Simple::Mu::Application::EventAdapters::SnsRecord do
   end
 
   it 'should return false' do
-    expect(subject.delete?).to be false
+    expect(subject.ackable?).to be false
   end
 
   it 'should return the to_s in the form of sns::{MessageId}' do

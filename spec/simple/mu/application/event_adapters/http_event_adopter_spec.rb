@@ -24,7 +24,7 @@ RSpec.describe Simple::Mu::Application::EventAdapters::Http do
   end
 
   it 'should return false' do
-    expect(subject.delete?).to be false
+    expect(subject.ackable?).to be false
   end
 
   it 'should return the to_s in the form http::{requestId}' do

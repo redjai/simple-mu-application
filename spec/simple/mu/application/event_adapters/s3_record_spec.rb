@@ -16,7 +16,7 @@ RSpec.describe Simple::Mu::Application::EventAdapters::S3Record do
   end
   
   it 'should return false' do
-    expect(subject.delete?).to be false
+    expect(subject.ackable?).to be false
   end
 
   it 'should return s3::{}' do

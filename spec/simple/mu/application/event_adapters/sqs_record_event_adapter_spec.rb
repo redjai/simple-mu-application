@@ -31,22 +31,10 @@ RSpec.describe Simple::Mu::Application::EventAdapters::SqsRecord do
     expect(subject.receipt_handle).to eq record['receiptHandle']
   end
 
-  context 'delete?' do
+  context 'ackable?' do
     
-    it 'should return true if DELETE_EVENT ENV is TRUE' do
-      ClimateControl.modify DELETE_EVENT: 'TRUE' do
-        expect(subject.delete?).to be true
-      end    
-    end
-
-    it 'should return false DELETE_EVENT ENV is not TRUE' do
-      ClimateControl.modify DELETE_EVENT: 'FALSE' do
-        expect(subject.delete?).to be false
-      end    
-    end
-    
-    it 'should return false' do
-      expect(subject.delete?).to be false
+    it 'should return true' do
+      expect(subject.ackable?).to be true
     end
 
   end

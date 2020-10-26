@@ -8,9 +8,9 @@ module Simple
   module Mu
     module Application
 
-      class FrameworkError < StandardError; end
+      class ServiceError < StandardError; end
 
-      class Framework
+      class Service
 
         attr_accessor :event, :context
 
@@ -32,7 +32,7 @@ module Simple
 
           if errors?
             acknowledge_processed_adapters!
-            raise Simple::Mu::Application::FrameworkError.new error_messages.join(",") #ids of events that failed, if we don't return an erro then aws will assume all messages have been processed and delete them all.
+            raise Simple::Mu::Application::ServiceError.new error_messages.join(",") #ids of events that failed, if we don't return an erro then aws will assume all messages have been processed and delete them all.
           end
 
           #if there are no errors let AWS delete the SQS messages naturally
@@ -75,7 +75,7 @@ module Simple
           @notifier ||= Simple::Mu::Application::Notifiers::Honeybadger.new
         end
 
-        def broadcast(topic_name:, event_name:, version:, payload:)
+        def broadcast(topic_name:, event_name:, version:, **payload)
           broadcaster.broadcast(topic_name, event_name, version, payload)
         end
 

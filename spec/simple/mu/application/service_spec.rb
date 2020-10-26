@@ -1,8 +1,8 @@
 require 'support/events/event'
 require 'support/events/http'
-require 'simple/mu/application/framework'
+require 'simple/mu/application/service'
 
-RSpec.describe Simple::Mu::Application::Framework do
+RSpec.describe Simple::Mu::Application::Service do
  
   let(:payload1){ { foo: 1 } }
   let(:payload2){ { foo: 2 } }
@@ -50,7 +50,7 @@ RSpec.describe Simple::Mu::Application::Framework do
             subject.handle do
               raise "boom"
             end
-          }.to raise_error(Simple::Mu::Application::FrameworkError)
+          }.to raise_error(Simple::Mu::Application::ServiceError)
       end
     end
 
@@ -62,7 +62,7 @@ RSpec.describe Simple::Mu::Application::Framework do
            subject.handle do |adapter|
              raise if adapter.event == payload1
            end
-        }.to raise_error(Simple::Mu::Application::FrameworkError)
+        }.to raise_error(Simple::Mu::Application::ServiceError)
       end
     end
   end
