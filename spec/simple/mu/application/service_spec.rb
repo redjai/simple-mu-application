@@ -21,18 +21,18 @@ RSpec.describe Simple::Mu::Application::Service do
       let(:aws_event){ MockHttpEvent.event(payload1) }
 
       it 'should yield the single http adapter' do
-        expect{ |b| subject.handle(&b) }.to yield_with_args(Simple::Mu::Application::EventAdapters::Http)
+        expect{ |b| subject.handle(&b) }.to yield_with_args(subject, Simple::Mu::Application::EventAdapters::Http)
       end
 
     end
 
     context 'one event with s3, sqs, sns records' do
     
-      it 'should yield the record adapters' do
-        expect{ |b| subject.handle(&b) }.to yield_successive_args(Simple::Mu::Application::EventAdapters::SqsRecord,
-                                                                                                      Simple::Mu::Application::EventAdapters::SqsRecord,
-                                                                                                      Simple::Mu::Application::EventAdapters::SnsRecord,
-                                                                                                      Simple::Mu::Application::EventAdapters::S3Record)
+      it 'should yield the service (self) and the record adapters' do
+        expect{ |b| subject.handle(&b) }.to yield_successive_args([subject, Simple::Mu::Application::EventAdapters::SqsRecord],
+                                                                                                      [subject, Simple::Mu::Application::EventAdapters::SqsRecord],
+                                                                                                      [subject, Simple::Mu::Application::EventAdapters::SnsRecord],
+                                                                                                      [subject, Simple::Mu::Application::EventAdapters::S3Record])
       end
 
     end 
@@ -59,7 +59,7 @@ RSpec.describe Simple::Mu::Application::Service do
       it 'should acknowledge the sqs messages that do not error and return an error' do
         expect(subject.acknowledger).to receive(:acknowledge).with(processed: [Simple::Mu::Application::EventAdapters::SqsRecord]).once
         expect {
-           subject.handle do |adapter|
+           subject.handle do |service, adapter|
              raise if adapter.event == payload1
            end
         }.to raise_error(Simple::Mu::Application::ServiceError)
@@ -71,9 +71,26 @@ RSpec.describe Simple::Mu::Application::Service do
 
     it 'should NOT use the acknowledger to acknowledge processed messages - let AWS do that naturally' do
       expect(subject.acknowledger).to receive(:acknowledge).never
-      subject.handle {|adapter|} #empty block
+      subject.handle {|service, adapter|} #empty block
     end
 
+  end
+
+  context 'response' do
+
+    let(:aws_event){ MockHttpEvent.event(payload1) }
+
+    it 'should return the value passed to respond' do
+      expect(subject.handle do |service, adapter|
+        service.respond 'foo-bar'
+      end).to eq 'foo-bar'
+    end
+    
+    it 'should return nil' do
+      expect(subject.handle do |service, adapter|
+        'foo-bar'
+      end).to be_nil 
+    end
   end
 
 end

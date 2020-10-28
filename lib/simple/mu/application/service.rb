@@ -22,7 +22,7 @@ module Simple
         def handle
           adapters.each do |adapter| 
             begin
-              yield adapter
+              yield self, adapter
               adapter.processed = true
             rescue StandardError => standard_error
               adapter.errored = true
@@ -37,6 +37,11 @@ module Simple
 
           #if there are no errors let AWS delete the SQS messages naturally
 
+          return @respond
+        end
+
+        def respond(response)
+          @respond = response
         end
 
         def adapters

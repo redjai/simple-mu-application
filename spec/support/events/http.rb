@@ -67,7 +67,7 @@ module MockHttpEvent
          "accountId"=>nil, 
          "cognitoIdentityId"=>nil, 
          "caller"=>nil, 
-         "sourceIp"=>"52.23.238.0", 
+         "sourceI p"=>"52.23.238.0", 
          "principalOrgId"=>nil, 
          "accessKey"=>nil, 
          "cognitoAuthenticationType"=>nil, 
