@@ -101,6 +101,8 @@ To do this we'll create three lambdas:
 1. The Timebot Lambda listens for events on the Messages topic, fetches the time and writes that to a Times topic.
 1. The Responder Lambda listens for events on the Times topic and writes the response (the time) back to the channel in Slack that requested it.
 
+This single string of events is a very trivial example of an event driven application but should we ever, say, want to start storing inbound events from AWS on s3 we simply deploy another lambda to listen Messages topic without having to redeploy or make any changes to our existing lambdas since they don't need to know anything about this new service or even know that it exists.
+
 ## The Gateway Lambda
 
 The Gateway lambda listens for events from an http endpoint set up by AWS such as `https://xyz12345.execute-api.eu-west-1.amazonaws.com/staging/gateway`. When a Slack user Direct Messages the bot or mentions `@timebot` in a channel the Slack Event API will send this event to the http endpoint. 
