@@ -340,67 +340,8 @@ The payload for each adapter was used to send a message (the time) back to the u
 The lambda call returned without errors and AWS seamlessly removed the events from the SQS queue.     
 
 
-Assume we have a lambda listening to an SQS queue bound to the messages topic. Our lambda above will generate a message that looks something like this. 
 
-```
-    "Records" => [
-       {"messageId"=>"...", 
-        "receiptHandle"=>"...", 
-        "body"=>"{\"message\":\"hello\",\"channel\":\"C123\",\"uid\":\"u234\"}", 
-        "attributes"=>{
-          ....
-        }, 
-        "messageAttributes"=>{}, 
-        "md5OfBody"=>"...", 
-        "eventSource"=>"aws:sqs", 
-        "eventSourceARN"=>"arn:aws:sqs:us-east-2:123454321:messages-queue", 
-        "awsRegion"=>"xx-xxxx-x"
-    }]
-```
-
-If we also assume two other people sent messages at the same time - through different http lambda event invocations - the event that comes from the SQS queue will look more like this:
-
-```
-    "Records" => [
-      {"messageId"=>"...", 
-        "receiptHandle"=>"...", 
-        "body"=>"{\"message\":\"hello\",\"channel\":\"C123\",\"uid\":\"u234\"}", 
-        "attributes"=>{
-          ....
-        }, 
-        "messageAttributes"=>{}, 
-        "md5OfBody"=>"...", 
-        "eventSource"=>"aws:sqs", 
-        "eventSourceARN"=>"arn:aws:sqs:us-east-2:123454321:messages-queue", 
-        "awsRegion"=>"xx-xxxx-x"
-      },
-      {"messageId"=>"...", 
-        "receiptHandle"=>"...", 
-        "body"=>"{\"message\":\"hi there\",\"channel\":\"C234\",\"uid\":\"u456\"}", 
-        "attributes"=>{
-          ....
-        }, 
-        "messageAttributes"=>{}, 
-        "md5OfBody"=>"...", 
-        "eventSource"=>"aws:sqs", 
-        "eventSourceARN"=>"arn:aws:sqs:us-east-2:123454321:messages-queue", 
-        "awsRegion"=>"xx-xxxx-x"
-      },
-      {"messageId"=>"...", 
-        "receiptHandle"=>"...", 
-        "body"=>"{\"message\":\"HI...???\",\"channel\":\"C789\",\"uid\":\"u567\"}", 
-        "attributes"=>{
-          ....
-        }, 
-        "messageAttributes"=>{}, 
-        "md5OfBody"=>"...", 
-        "eventSource"=>"aws:sqs", 
-        "eventSourceARN"=>"arn:aws:sqs:us-east-2:123454321:messages-queue", 
-        "awsRegion"=>"xx-xxxx-x"
-      }
-    ]
-```
-
+GEM STUFF GOES HERE FOR NOW:
 - - - - - - - - - - - - 
      
 
