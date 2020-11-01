@@ -75,7 +75,7 @@ Template values can be:
 ```
 The Registry does NOT do a deep validation of hashes.
 
-###3. After the handle method
+### 3. After the handle method
 
 
 #### Acknowledger
