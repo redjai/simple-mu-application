@@ -3,6 +3,9 @@ module Simple
     module Application
       module Templates 
         module Registry 
+          
+          class ServiceRegisteryError < StandardError ; end
+          
           @@templates = Hash.new{ |hash, key| raise("message #{key} not found") } 
 
           def self.register(topic_name, event_name, version, **payload_definition)

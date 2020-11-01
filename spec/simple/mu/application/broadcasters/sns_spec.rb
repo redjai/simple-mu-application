@@ -44,23 +44,60 @@ RSpec.describe Simple::Mu::Application::Topics::Sns do
 
   context 'broadcast' do
 
-   around do |example|
-      Simple::Mu::Application::Templates::Registry.register(topic_name, 'some.event', 1, {foo1: :string, foo2: :string})
-        example.run
-      Simple::Mu::Application::Templates::Registry.deregister(topic_name, 'some.event', 1)
-    end
-
     let(:payload){ { foo1: 'bar1', foo2: 'bar2' } }
     let(:event_name){ 'some.event' }
     let(:version){ 1 }
     let(:source){ 'some.arn' }
-    let(:message){ {    event_name: event_name,
+
+    context 'no block give' do
+     
+      around do |example|
+        Simple::Mu::Application::Templates::Registry.register(topic_name, 'some.event', 1, {foo1: :string, foo2: :string})
+          example.run
+        Simple::Mu::Application::Templates::Registry.deregister(topic_name, 'some.event', 1)
+      end
+
+      let(:message){ {    event_name: event_name,
                              version: version,
                              payload: payload }.to_json }
+      
+      it 'should publish the event type to sns' do
+        expect(subject.topic(topic_name)).to receive(:publish).with(message: message)
+        subject.broadcast(topic_name, event_name, version, payload)
+      end
 
-    it 'should publish the event type to sns' do
-      expect(subject.topic(topic_name)).to receive(:publish).with(message: message)
-      subject.broadcast(topic_name, event_name, version, payload)
+    end
+
+
+    context 'block_given' do
+      let(:extra_payload){ payload.merge({foo3: 'bar3', foo4: 'bar4'}) }
+      let(:message){ {    event_name: event_name,
+                             version: version,
+                             payload: extra_payload }.to_json }
+
+      around do |example|
+        Simple::Mu::Application::Templates::Registry.register(topic_name, 'some.event', 1, {foo1: :string, foo2: :string, foo3: :string, foo4: :string})
+          example.run
+        Simple::Mu::Application::Templates::Registry.deregister(topic_name, 'some.event', 1)
+      end
+      
+      it 'should include amy extra poaylod params provided in a block' do
+        expect(subject.topic(topic_name)).to receive(:publish).with(message: message)
+        subject.broadcast(topic_name, event_name, version, payload) do |payload|
+          payload[:foo3] = 'bar3'
+          payload[:foo4] = 'bar4'
+        end
+      end
+      
+      it 'should use an empty payload if none is provided as an argument' do
+        expect(subject.topic(topic_name)).to receive(:publish).with(message: message)
+        subject.broadcast(topic_name, event_name, version) do |payload|
+          payload[:foo1] = 'bar1'
+          payload[:foo2] = 'bar2'
+          payload[:foo3] = 'bar3'
+          payload[:foo4] = 'bar4'
+        end
+      end
     end
 
   end

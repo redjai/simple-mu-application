@@ -26,7 +26,12 @@ module Simple
             @resource ||= Aws::SNS::Resource.new(region: ENV['REGION'])
           end
 
-          def broadcast(topic_name, event_name, version, payload)
+          def broadcast(topic_name, event_name, version, payload={})
+            if block_given?
+              additional_payload = {}
+              yield additional_payload
+              payload.merge!(additional_payload)
+            end
             Simple::Mu::Application::Templates::Validator.new(topic_name: topic_name, 
                                                               event_name: event_name,
                                                                  version: version,
